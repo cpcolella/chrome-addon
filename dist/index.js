@@ -34,14 +34,16 @@ function requestToken(id, secret, refresh) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log('=== Requesting token ===');
         console.log('Making call to request token...');
-        const response = yield axios_1.default.post('https://www.googleapis.com/oauth2/token', {
+        const endpoint = `https://accounts.google.com/o/oauth2/token`;
+        const response = yield axios_1.default.post(endpoint, {
             client_id: id,
             client_secret: secret,
-            refresh_token: refresh,
-            grant_type: 'refresh_token'
+            code: refresh,
+            grant_type: 'authorization_code',
+            redirect_uri: 'urn:ietf:wg:oauth:2.0:oob'
         });
-        console.log('=== Requesting token finished ===');
         console.log(`Response: ${JSON.stringify(response.data)}`);
+        console.log('=== Requesting token finished ===');
         return response.data.access_token;
     });
 }
@@ -119,7 +121,8 @@ function run() {
             }
         }
         catch (error) {
-            core.setFailed(error);
+            core.setFailed(error.message);
+            console.log(error);
             console.log('= Fail cpcolella/chrome-adddon action =');
         }
     });
