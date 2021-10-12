@@ -1,6 +1,6 @@
-name: 'Chrome Addon Action'
+name: 'Chrome Extension Publish/Update/Create Action'
 description: 'Upload your addon to the Chrome Web Store'
-author: 'Thomas McNiven'
+author: 'Casey Colella'
 inputs:
   extension:
     description: 'ID of the extension that you are updating'
@@ -13,7 +13,7 @@ inputs:
   refresh-token:
     description: 'Google OAuth2 refresh token'
   publish-target:
-    description: 'Chrome Stroe publish target "default" | "trustedTesters"'
+    description: 'Chrome Store publish target "default" | "trustedTesters"'
     default: 'default'
 runs:
   using: 'node12'
