@@ -118,6 +118,7 @@ async function run() {
         }
     } catch (error) {
         core.setFailed((error as Error).message);
+        console.log(error);
         console.log('= Fail cpcolella/chrome-adddon action =');
     }
 }
