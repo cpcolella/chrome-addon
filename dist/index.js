@@ -35,12 +35,17 @@ function requestToken(id, secret, refresh) {
         console.log('=== Requesting token ===');
         console.log('Making call to request token...');
         const endpoint = `https://accounts.google.com/o/oauth2/token`;
-        const response = yield axios_1.default.post(endpoint, {
-            client_id: id,
-            client_secret: secret,
-            code: refresh,
-            grant_type: 'authorization_code',
-            redirect_uri: 'urn:ietf:wg:oauth:2.0:oob'
+        const response = yield axios_1.default.get(endpoint, {
+            headers: {
+                'content-type': 'application/x-www-form-urlencoded'
+            },
+            data: {
+                client_id: id,
+                client_secret: secret,
+                code: refresh,
+                grant_type: 'authorization_code',
+                redirect_uri: 'urn:ietf:wg:oauth:2.0:oob'
+            },
         });
         console.log(`Response: ${JSON.stringify(response.data)}`);
         console.log('=== Requesting token finished ===');
