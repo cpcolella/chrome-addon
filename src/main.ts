@@ -9,18 +9,20 @@ async function requestToken(clientId: string, clientSecret: string, refreshToken
 
     const endpoint = `https://accounts.google.com/o/oauth2/token`;
 
-    const response = await axios.get(endpoint, {
-        headers: {
-            'content-type': 'application/x-www-form-urlencoded'
-        },
-        data: {
+    const response = await axios.post(endpoint, 
+        {
             client_id: clientId,
             client_secret: clientSecret,
             refresh_token: refreshToken,
             grant_type: 'refresh_token',
             redirect_uri: 'urn:ietf:wg:oauth:2.0:oob'
         },
-    });
+        {
+            headers: {
+                'content-type': 'application/x-www-form-urlencoded'
+            },
+        }
+    );
 
     console.log(`Response: ${JSON.stringify(response.data)}`);
     console.log('=== Requesting token finished ===');
