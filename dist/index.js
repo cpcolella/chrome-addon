@@ -35,13 +35,16 @@ function requestToken(clientId, clientSecret, refreshToken) {
         console.log('=== Requesting token ===');
         console.log('Making call to request token...');
         const endpoint = `https://accounts.google.com/o/oauth2/token`;
-        const response = yield axios_1.default.post(endpoint, {
+        let body = {
             client_id: clientId,
-            client_secret: clientSecret,
             refresh_token: refreshToken,
             grant_type: 'refresh_token',
             redirect_uri: 'urn:ietf:wg:oauth:2.0:oob'
-        }, {
+        };
+        if (clientSecret !== undefined && clientSecret !== null && clientSecret !== '') {
+            body.client_secret = clientSecret;
+        }
+        const response = yield axios_1.default.post(endpoint, body, {
             headers: {
                 'content-type': 'application/x-www-form-urlencoded'
             },
@@ -129,7 +132,6 @@ function run() {
         }
         catch (error) {
             core.setFailed(error.message);
-            console.log(error);
             console.log('= Fail cpcolella/chrome-adddon action =');
         }
     });
