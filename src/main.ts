@@ -7,15 +7,18 @@ async function requestToken(id: string, secret: string, refresh: string) {
     console.log('=== Requesting token ===');
     console.log('Making call to request token...');
 
-    const response = await axios.post('https://www.googleapis.com/oauth2/token', {
+    const endpoint = `https://accounts.google.com/o/oauth2/token`;
+
+    const response = await axios.post(endpoint, {
         client_id: id,
         client_secret: secret,
-        refresh_token: refresh,
-        grant_type: 'refresh_token'
+        code: refresh,
+        grant_type: 'authorization_code',
+        redirect_uri: 'urn:ietf:wg:oauth:2.0:oob'
     });
 
-    console.log('=== Requesting token finished ===');
     console.log(`Response: ${JSON.stringify(response.data)}`);
+    console.log('=== Requesting token finished ===');
 
     return response.data.access_token;
 }
