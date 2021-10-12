@@ -30,7 +30,7 @@ const core = __importStar(__webpack_require__(2186));
 const axios_1 = __importDefault(__webpack_require__(6545));
 const fs_1 = __importDefault(__webpack_require__(5747));
 const path_1 = __importDefault(__webpack_require__(5622));
-function requestToken(id, secret, refresh) {
+function requestToken(clientId, clientSecret, refreshToken) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log('=== Requesting token ===');
         console.log('Making call to request token...');
@@ -40,10 +40,10 @@ function requestToken(id, secret, refresh) {
                 'content-type': 'application/x-www-form-urlencoded'
             },
             data: {
-                client_id: id,
-                client_secret: secret,
-                code: refresh,
-                grant_type: 'authorization_code',
+                client_id: clientId,
+                client_secret: clientSecret,
+                refresh_token: refreshToken,
+                grant_type: 'refresh_token',
                 redirect_uri: 'urn:ietf:wg:oauth:2.0:oob'
             },
         });
@@ -52,12 +52,12 @@ function requestToken(id, secret, refresh) {
         return response.data.access_token;
     });
 }
-function createAddon(zip, token) {
+function createAddon(zipPath, token) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log('=== Creating addon ===');
         const endpoint = `https://www.googleapis.com/upload/chromewebstore/v1.1/items?uploadType=media`;
         console.log('Reading zip file...');
-        const body = fs_1.default.readFileSync(path_1.default.resolve(zip));
+        const body = fs_1.default.readFileSync(path_1.default.resolve(zipPath));
         console.log('Uploading zip file...');
         const response = yield axios_1.default.post(endpoint, body, {
             headers: {
@@ -70,10 +70,10 @@ function createAddon(zip, token) {
         console.log('=== Creating addon finished ===');
     });
 }
-function updateAddon(id, zip, token) {
+function updateAddon(appId, zip, token) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log('=== Updating addon ===');
-        const endpoint = `https://www.googleapis.com/upload/chromewebstore/v1.1/items/${id}?uploadType=media`;
+        const endpoint = `https://www.googleapis.com/upload/chromewebstore/v1.1/items/${appId}?uploadType=media`;
         console.log('Reading zip file...');
         const body = fs_1.default.readFileSync(path_1.default.resolve(zip));
         console.log('Uploading zip file...');
@@ -88,10 +88,10 @@ function updateAddon(id, zip, token) {
         console.log('=== Updating addon finished ===');
     });
 }
-function publishAddon(id, token, publishTarget) {
+function publishAddon(appId, token, publishTarget) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log('=== Publishing addon ===');
-        const endpoint = `https://www.googleapis.com/chromewebstore/v1.1/items/${id}/publish`;
+        const endpoint = `https://www.googleapis.com/chromewebstore/v1.1/items/${appId}/publish?publishTarget=${publishTarget}`;
         console.log('Making call to update addon...');
         const response = yield axios_1.default.post(endpoint, { target: publishTarget }, {
             headers: {
@@ -109,20 +109,23 @@ function run() {
         console.log('Reading environment variables...');
         try {
             const clientId = core.getInput('client-id', { required: true });
-            const clientSecret = core.getInput('client-secret', { required: true });
-            const refresh = core.getInput('refresh-token', { required: true });
-            const zip = core.getInput('zip', { required: true });
-            const extension = core.getInput('extension');
-            const publishTarget = core.getInput('publish-target');
-            const token = yield requestToken(clientId, clientSecret, refresh);
+            const refreshToken = core.getInput('refresh-token', { required: true });
+            const zipPath = core.getInput('zip-path', { required: true });
+            const clientSecret = core.getInput('client-secret');
+            const extensionId = core.getInput('extension-id');
+            let publishTarget = core.getInput('publish-target');
+            if (!publishTarget) {
+                publishTarget = 'default';
+            }
+            const token = yield requestToken(clientId, clientSecret, refreshToken);
             console.log(`Token: ${token}`);
-            if (extension && extension.length > 0) {
-                yield updateAddon(extension, zip, token);
-                yield publishAddon(extension, token, publishTarget);
+            if (extensionId && extensionId.length > 0) {
+                yield updateAddon(extensionId, zipPath, token);
+                yield publishAddon(extensionId, token, publishTarget);
             }
             else {
-                yield createAddon(zip, token);
-                yield publishAddon(extension, token, publishTarget);
+                yield createAddon(zipPath, token);
+                yield publishAddon(extensionId, token, publishTarget);
             }
         }
         catch (error) {
