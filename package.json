@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cpcolella/chrome-addon.git"
+    "url": "https://github.com/cpcolella/chrome-addon"
   },
   "keywords": [
     "actions",
