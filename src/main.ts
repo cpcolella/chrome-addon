@@ -20,13 +20,7 @@ async function requestToken(clientId: string, clientSecret: string, refreshToken
         (body as any).client_secret = clientSecret;
     }
 
-    const response = await axios.post(endpoint, body,
-        {
-            headers: {
-                'content-type': 'application/x-www-form-urlencoded'
-            },
-        }
-    );
+    const response = await axios.post(endpoint, body);
 
     console.log(`Response: ${JSON.stringify(response.data)}`);
     console.log('=== Requesting token finished ===');

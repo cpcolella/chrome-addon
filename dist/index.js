@@ -44,11 +44,7 @@ function requestToken(clientId, clientSecret, refreshToken) {
         if (clientSecret !== undefined && clientSecret !== null && clientSecret !== '') {
             body.client_secret = clientSecret;
         }
-        const response = yield axios_1.default.post(endpoint, body, {
-            headers: {
-                'content-type': 'application/x-www-form-urlencoded'
-            },
-        });
+        const response = yield axios_1.default.post(endpoint, body);
         console.log(`Response: ${JSON.stringify(response.data)}`);
         console.log('=== Requesting token finished ===');
         return response.data.access_token;
