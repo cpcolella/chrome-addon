@@ -4,8 +4,7 @@ import fs from 'fs';
 import path from 'path';
 
 async function requestToken(clientId: string, clientSecret: string, refreshToken: string) {
-    console.log('=== Requesting token ===');
-    console.log('Making call to request token...');
+    console.log('Requesting token...');
 
     const endpoint = `https://accounts.google.com/o/oauth2/token`;
 
@@ -20,16 +19,17 @@ async function requestToken(clientId: string, clientSecret: string, refreshToken
         (body as any).client_secret = clientSecret;
     }
 
+    console.log('Making call to request token...');
     const response = await axios.post(endpoint, body);
 
     console.log(`Response: ${JSON.stringify(response.data)}`);
-    console.log('=== Requesting token finished ===');
+    console.log('Done requesting token.');
 
     return response.data.access_token;
 }
 
 async function createAddon(zipPath: string, token: string) {
-    console.log('=== Creating addon ===');
+    console.log('Creating extension...');
 
     const endpoint = `https://www.googleapis.com/upload/chromewebstore/v1.1/items?uploadType=media`;
 
@@ -45,11 +45,11 @@ async function createAddon(zipPath: string, token: string) {
         maxContentLength: Infinity
     });
     console.log(`Response: ${JSON.stringify(response.data)}`);
-    console.log('=== Creating addon finished ===');
+    console.log('Done creating extension.');
 }
 
 async function updateAddon(appId: string, zip: string, token: string) {
-    console.log('=== Updating addon ===');
+    console.log('Updating extension...');
 
     const endpoint = `https://www.googleapis.com/upload/chromewebstore/v1.1/items/${appId}?uploadType=media`;
 
@@ -66,15 +66,20 @@ async function updateAddon(appId: string, zip: string, token: string) {
     });
 
     console.log(`Response: ${JSON.stringify(response.data)}`);
-    console.log('=== Updating addon finished ===');
+
+    if (response.data.uploadState === 'FAILURE') {
+        throw new Error(response.data.itemError[0].error_detail);
+    }
+
+    console.log('Done updating extension.');
 }
 
 async function publishAddon(appId: string, token: string, publishTarget: string) {
-    console.log('=== Publishing addon ===');
+    console.log('Publishing extension...');
 
     const endpoint = `https://www.googleapis.com/chromewebstore/v1.1/items/${appId}/publish?publishTarget=${publishTarget}`;
 
-    console.log('Making call to update addon...');
+    console.log('Making call to update extension...');
     const response = await axios.post(
         endpoint,
         { target: publishTarget },
@@ -87,11 +92,11 @@ async function publishAddon(appId: string, token: string, publishTarget: string)
     );
     
     console.log(`Response: ${JSON.stringify(response.data)}`);
-    console.log('=== Publishing addon finished ===');
+    console.log('Done publishing extension.');
 }
 
 async function run() {
-    console.log('= Start cpcolella/chrome-adddon action =');
+    console.log('Start cpcolella/chrome-extension action');
     console.log('Reading environment variables...');
 
     try {
@@ -119,7 +124,7 @@ async function run() {
     } catch (error) {
         core.setFailed((error as Error).message);
         console.log(error);
-        console.log('= Fail cpcolella/chrome-adddon action =');
+        console.log('chrome-extension action failed.');
     }
 }
 
